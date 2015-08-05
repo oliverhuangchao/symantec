@@ -1,1 +1,5 @@
 This is a java code for Symantic interview
+How to run:
+./run.sh
+
+The result hold in the result.txt
