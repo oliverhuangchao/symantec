@@ -1,0 +1,9 @@
+finda, 2.0
+pepsi, 1.75
+coca, 1.0
+finda, 3.0
+coffee, 1.5
+finda, 2.0
+tea, 2.5
+pepsi, 1.75
+bread, 3

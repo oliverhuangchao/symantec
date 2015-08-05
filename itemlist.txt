@@ -1,0 +1,7 @@
+finda	0
+coca	1
+pepsi	2
+bread	3
+coffee	4
+tea	5
+cake	6

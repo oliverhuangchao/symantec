@@ -1,0 +1,11 @@
+success, 2.00
+success, 0.25
+success, 9.00
+money is not enough
+success, 0.00
+success, 1.50
+Out of coffee
+Out of coffee
+money is not enough
+10 not exist in this vendor
+code out of range
