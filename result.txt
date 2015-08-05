@@ -1,11 +1,11 @@
-success, 2.00
-success, 0.25
-success, 9.00
-money is not enough
-success, 0.00
-success, 1.50
+success, $2.00:[$1.0,$1.0].
+success, $0.25:[$0.25].
+success, $9.00:[$5.0,$1.0,$1.0,$1.0,$1.0].
+Invalid denomination
+success, $0.00: exact fit the price!
+success, $1.50:[$1.0,$0.25,$0.25].
 Out of coffee
 Out of coffee
-money is not enough
+your money is not enough
 10 not exist in this vendor
-code out of range
+200 not exist in this vendor

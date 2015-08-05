@@ -6,42 +6,39 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 public class vendingMachine {
-	
-	
+    /*
+     *  singleton definition for vendor machine
+     * */
 	public static vendingMachine getInstance() throws IOException{
 		if(singleMachine == null)
 			singleMachine = new vendingMachine();
 		return singleMachine;
 	}
-	
+	/*
+	 *  private class members go here
+	 * */
 	private static vendingMachine singleMachine;// 
+	
 	private float _revenue;
+	
 	private int _typeSize;
 	
-	// key: item id
-	// value: item number
-	// how many items for this id
-	private Hashtable<Integer, Integer> _item_count;
+	private Hashtable<Integer, Integer> _item_count;// how many items for this type, id->number
 	
-	// key is the id:0,1,2 refers to $5, $1, $0.25,
-	// value is how manys coins for each price
-	private ArrayList<Integer> _coinList;
+	private ArrayList<Integer> _coinList;// current coins list, contains numbers of $1, $5, $0.25
 	
-	// key is the id, value is the item name 
-	private Hashtable<String, Integer> _name2id; //previously setted
+	private Hashtable<String, Integer> _name2id; //previously settled
 	
-	// transfer id to its name
-	private Hashtable<Integer, String> _id2name; 	
+	private Hashtable<Integer, String> _id2name;// transfer id to its name
 	
-	// get price through id
-	private Hashtable<Integer, Float> _id2price;
-	
-	protected void _init_function() throws IOException{
-		/* put some change coins into the machine */
-		for(int i=0;i<3;i++)
+	private Hashtable<Integer, Float> _id2price;// get price through id
+	/*
+	 * initialize function will be called once we create a new machine 
+	 */
+	private void _init_function() throws IOException{
+		for(int i=0;i<3;i++) // put some change coins into the machine 
 			_coinList.add(100);
 		fileIO.init_vendor_itemlist(_name2id);
-		
 		for (Iterator<String> it = _name2id.keySet().iterator(); it.hasNext(); ) {
 			String name = it.next();
 			int id = _name2id.get(name);
@@ -50,7 +47,10 @@ public class vendingMachine {
 		}
 	}
 	
-	protected vendingMachine() throws IOException{
+	/*
+	 * construction function for vendor machine
+	 */
+	private vendingMachine() throws IOException{
 		_revenue = (float) 0.0;
 		_typeSize = 100;
 		_item_count = new Hashtable<Integer,Integer>();
@@ -61,7 +61,9 @@ public class vendingMachine {
 		_init_function();
 	}
 	
-	// add item into the vendor if ths shopper want
+	/*
+	 * add item into the vendor if the shopper want to do 
+	 */
 	protected void additem(String item_name, float item_price){
 		int id = _name2id.get(item_name);
 		if(_item_count.containsKey(id)){
@@ -75,50 +77,128 @@ public class vendingMachine {
 			_id2price.put(id, item_price);
 	}
 	
-	// buy something from the vendor
+	/*
+	 *  buy something from the vendor
+	 *  return value is a String due to the requirement
+	 *  return a Item is more reasonable
+	 *  */
 	protected String transaction(int inputcode, float money){
 		/*------ if the user input the wrong code------*/
-		if(inputcode > _typeSize){
+		/*if(inputcode > _typeSize){
 			String res = "code out of range";
 			System.out.println(res);
 			return res;
+		}*/
+		if((money*100)%25 != 0){
+			String res = "Invalid denomination";
+			System.out.println(res);
+			return res;
 		}
-		// if we do not have this item for this code
-		if(!_item_count.containsKey(inputcode)){
-			//System.out.println(_item_count);
+				
+		if(inputcode > _typeSize || !_item_count.containsKey(inputcode)){// if we do not have this item for this code
 			String res = String.format("%d not exist in this vendor",inputcode);
 			System.out.println(res);
 			return res;
 		}
-		// if this item is sold out
-		if(_item_count.get(inputcode) == 0 ){
+		
+		if(_item_count.get(inputcode) == 0 ){// if this item is sold out
 			String res = String.format("Out of %s",_id2name.get(inputcode));
 			System.out.println(res);
 			return res;
 		}
-		// the money is not enough
-		if(money < _id2price.get(inputcode)){
-			String res = "money is not enough";
+		
+		if(money < _id2price.get(inputcode)){// the money is not enough
+			String res = "your money is not enough";
 			System.out.println(res);
 			return res;
 		}
-		//VenderItem item = new VenderItem(_id2name.get(inputcode), _id2price.get(inputcode));
-		String res = String.format("success, %.2f",money-_id2price.get(inputcode));
+		
+		// if charge is not enough
+		int return_money_cents = (int) ((money-_id2price.get(inputcode))*100);
+		ArrayList<Integer> return_detail = return_change(return_money_cents);
+		if(return_detail.isEmpty() && return_money_cents > 0){
+			System.out.println(return_money_cents);
+			String res = "our change is not enough";
+			System.out.println(res);
+			return res;
+		}
+		
+		
+		float tmp = money*100; //update the coin list
+		_coinList.set(0, _coinList.get(0)+(int) (tmp % 500));
+		_coinList.set(1, _coinList.get(1)+(int) ((tmp % 500) / 100));
+		_coinList.set(2, _coinList.get(2)+(int) ((tmp % 100) / 25));
 		_item_count.put(inputcode, _item_count.get(inputcode)-1);
 		_revenue += _id2price.get(inputcode);
+
+		StringBuffer res = new StringBuffer();
+		res.append(String.format("success, $%.2f",(money-_id2price.get(inputcode))));
+		if(return_detail.isEmpty())
+			res.append(": exact fit the price!");
+		else{
+			res.append(":[");
+			for(int i=0;i<return_detail.size();i++){
+				res.append("$"+String.valueOf((float)return_detail.get(i)/100));
+				if(i != return_detail.size()-1)
+					res.append(",");
+			}
+			res.append("].");
+		}
+		
 		System.out.println(res);
-		return res;
+		return res.toString();
 	}
 	
-	// return the current revenue
+	/* ---------- return the current revenue ---------- */
 	protected float getCurrent() {
 		return _revenue;
 	}
 	
+	/* ---------- return the change ---------- */
+	@SuppressWarnings("unchecked")
+	private ArrayList<Integer> return_change(int change_money){
+		ArrayList<Integer> coins = new ArrayList<Integer>();
+		coins.add(500);coins.add(100);coins.add(25);
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+		coin_dfs_helper(coins,_coinList, 0, change_money, path, result);
+		if(!result.isEmpty()){
+			_coinList = (ArrayList<Integer>) result.get(1).clone();
+			return result.get(0);
+		}
+		else {
+			return null;
+		}
+	}
 	
-	// print the food and its count
+	/* ---------- calculate how to charge the result ---------- */
+	private void coin_dfs_helper(ArrayList<Integer> coins, ArrayList<Integer> coins_counts, int pos, int sum, ArrayList<Integer> path,ArrayList<ArrayList<Integer>> result){
+		if(!result.isEmpty())
+			return;
+		if(sum == 0){
+			@SuppressWarnings("unchecked")
+			ArrayList<Integer> coins_counts_result = (ArrayList<Integer>) coins_counts.clone();
+			result.add(path);
+			result.add(coins_counts_result);
+			return;
+		}
+		if(sum < 0)
+			return;
+		for(int i = pos;i<coins.size();i++){
+			if(coins_counts.get(i) == 0)
+				continue;
+			@SuppressWarnings("unchecked")
+			ArrayList<Integer> tmp = (ArrayList<Integer>) path.clone();
+			coins_counts.set(i, coins_counts.get(i)-1);
+			tmp.add(coins.get(i));
+			coin_dfs_helper(coins, coins_counts,i, sum-coins.get(i), tmp,result);
+			coins_counts.set(i, coins_counts.get(i)+1);
+		}
+	}
+	
+	/* ---------- print the food and its count ---------- */
 	protected void show_all_food(){
-		System.out.println("--------- current machine ---------");
+		System.out.println("--------- current machine status ---------");
 		for (Iterator<Integer> it = _item_count.keySet().iterator(); it.hasNext(); ) {
 		    Integer key = it.next();
 		    String name = _id2name.get(key);

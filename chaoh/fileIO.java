@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 public class fileIO {
-	// create an map between item name and id
+	/* 
+	 * 
+	 * create an map between item name and id 
+	 * 
+	 * */
 	static void init_vendor_itemlist(Hashtable<String, Integer> map) throws IOException{
 		String fileName = "itemlist.txt";
 		String line = null;
@@ -31,7 +35,13 @@ public class fileIO {
         }
 	}
 	
-	
+	/* 
+	 * Add item into the machine
+	 * 
+	 * here we just use item.txt to add
+	 * you can also call machine.additem(item_add, item_money) to finish individually
+	 *
+	 * */
 	static void add_item_itemlist(vendingMachine machine) throws IOException{
 		String fileName = "items.txt";
 		String line = null;
@@ -43,7 +53,7 @@ public class fileIO {
             while((line = bufferedReader.readLine()) != null) {
             	String[] parts = line.split(",");
             	float money = Float.parseFloat(parts[1]);
-            	machine.additem(parts[0], money);
+            	machine.additem(parts[0], money);// here is the key part
             }    
             bufferedReader.close();
         }
@@ -52,7 +62,13 @@ public class fileIO {
         }
 	}
 	
-	
+	/* 
+	 * Transactions in machine
+	 * 
+	 * here we just use customers.txt to do transaction
+	 * you can also call machine.transaction(item_code, your_money) to finish individually
+	 *
+	 * */
 	static void read_customer_list(String fileName,vendingMachine machine) throws IOException{
 		fileName = "customers.txt";
 		String line = null;
@@ -63,7 +79,7 @@ public class fileIO {
             	String[] parts = line.split(",");
             	int code = Integer.parseInt(parts[0]);
             	float money = Float.parseFloat(parts[1]);
-            	String res = machine.transaction(code, money);
+            	String res = machine.transaction(code, money);//here is the key part
             	save2file("resutl.txt", res);
             }
             bufferedReader.close();
@@ -74,8 +90,11 @@ public class fileIO {
 	}
 	
 	
-	
-	// save contents to file
+	/*
+	 * save contents to file
+	 * 
+	 * 
+	 * */
 	static void save2file(String filename,String content){
 		filename = "result.txt";
 		try {
@@ -88,16 +107,8 @@ public class fileIO {
 			bw.write(content);
 			bw.write("\n");
 			bw.close();
-			//System.out.println("Done");
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	
-	public static void main(String[] args) throws IOException {
-		save2file("result.txt", "hello world");
-		save2file("result.txt", "chao huang");
 	}
 }

@@ -1,5 +1,59 @@
-This is a java code for Symantic interview
+-----------------------------------------
+Author: Chao Huang
+Email:   chaoh@g.clemson.edu
+-----------------------------------------
+
+How to run:
+This is a java code for Symantec interview
 How to run:
 ./run.sh
-
 The result hold in the result.txt
+
+-----------------------------------------
+Basic idea:
+I define two classes here: vendor_item and vendor_machine
+vendor_item is simple, just for some basic prosperity for the vendor
+
+-----------------------------------------
+Basic:
+In order to save memory to the vendor machine, I just create the parameters for each item. 
+If the program needs to output all the items, you can just call 'return VenderItem(name,price)' to create a new item and return.
+So everything in this machine are just parameters.
+
+Data flow:
+Firstly, we create a machine as a singleton. So in the whole program, there will be just one machine.
+Then, we update the machine using 'item.txt'
+Then we make transactions using 'customers.txt'
+The result will be shown in both console and 'result.txt'
+
+Machine skills:
+The machine has the following functions:
+1. Check whether all the input will be correct
+2. If the current coins is not enough to pay change to customers. Then it will stop
+3. If the item is sold out, it will stop
+4. The machine will try to give the change coins as less as it can
+
+-----------------------------------------
+Detail:
+vendor_machine is quite complex.
+vendor_machine:
+    member (all private):
+        _id2name: this is a hash table transform id to item name
+        _name2id: this is a hash table transform name to id
+        _item_count: this is a hash table. It tells the machine how many items are left in the machine for the item id
+        _coin_count: this is a array. it tells the machine, how many coins are left for a specific coins. there are just three types coins: $5,$1,$0.25
+        _item_price: this is just a hash table. When given a item id, we can know its price directly
+        _size: how many item types for this machine, default is 100
+        _revenue: what is the currently revenue for this machine
+    Function:
+        protected: returnCurrent(): return the current revenue
+        protected: show_all_food(): show the current machine status
+        protected: add_item(name, price): given a name and item price, put it into the machine.
+                                    This action will update _item_count, _id2name, _id2price
+        protected: transaction(id,price): do a transaction:
+                                I make several results for this machine
+                                    a. code input is error
+                                    b. item is sold out
+                                    c. input money is not enough to pay for this item
+                                    d. machine's coins is not enough to pay for change
+                                    e. user gives wrong coins to the vendor_machine
